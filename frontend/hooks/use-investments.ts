@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import apiClient from '@/lib/api-client';
+import { opportunities } from '@/lib/opportunities-data';
 
 export interface Investment {
     id: string;
@@ -14,6 +15,26 @@ export interface Investment {
     symbol?: string;
 }
 
+// Map opportunities data to Investment interface
+const mapOpportunitiesToInvestments = (): Investment[] => {
+    return opportunities.map((opp) => ({
+        id: opp.id,
+        name: opp.name,
+        type: opp.category === 'startup' ? 'Growth' 
+            : opp.category === 'mutual_fund' ? 'Income'
+            : opp.category === 'government_bond' ? 'Impact'
+            : opp.category === 'treasury_bill' ? 'Income'
+            : 'Growth',
+        riskLevel: opp.riskLevel.charAt(0).toUpperCase() + opp.riskLevel.slice(1),
+        expectedYield: `${opp.roi}%`,
+        minInvestment: `$${opp.minInvestment?.toLocaleString() || '100'}`,
+        description: opp.description,
+        targetAmount: opp.fundingGoal,
+        totalRaised: opp.fundingCurrent,
+        symbol: opp.name.split(' ').slice(0, 2).join('').toUpperCase()
+    }));
+};
+
 export function useInvestments() {
     const [investments, setInvestments] = useState<Investment[]>([]);
     const [loading, setLoading] = useState(true);
@@ -27,41 +48,14 @@ export function useInvestments() {
                 if (response.data && Array.isArray(response.data)) {
                     setInvestments(response.data);
                 } else {
-                    // Fallback to empty or mock if needed, but for now just empty
-                    setInvestments([]);
+                    // Fallback to opportunities data
+                    setInvestments(mapOpportunitiesToInvestments());
                 }
             } catch (err) {
                 console.error("Failed to fetch investments:", err);
-                setError("Failed to load investments");
-                // Fallback to mock data if backend fails (for demo purposes)
-                // In a real app, we might show an error state
-                setInvestments([
-                    {
-                        id: "1",
-                        name: "Easy Solar",
-                        type: "Impact",
-                        riskLevel: "Low",
-                        expectedYield: "12.5%",
-                        minInvestment: "$50",
-                        description: "Leading distributor of solar energy solutions across West Africa.",
-                        targetAmount: 100000,
-                        totalRaised: 75000,
-                        symbol: "SOLAR"
-                    },
-                    {
-                        id: "2",
-                        name: "Monime",
-                        type: "Growth",
-                        riskLevel: "High",
-                        expectedYield: "24.5%",
-                        minInvestment: "$100",
-                        description: "Fintech platform bridging the gap between cash and digital finance.",
-                        targetAmount: 200000,
-                        totalRaised: 45000,
-                        symbol: "MONI"
-                    },
-                    // ... more mock data if needed
-                ]);
+                setError("Failed to load investments from backend, using local data");
+                // Fallback to opportunities data if backend fails
+                setInvestments(mapOpportunitiesToInvestments());
             } finally {
                 setLoading(false);
             }

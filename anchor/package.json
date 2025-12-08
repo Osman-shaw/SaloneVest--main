@@ -1,0 +1,25 @@
+{
+  "name": "salonevest-anchor",
+  "version": "0.1.0",
+  "description": "SaloneVest Investment Escrow Smart Contract",
+  "scripts": {
+    "test": "anchor test",
+    "build": "anchor build",
+    "deploy": "anchor deploy"
+  },
+  "devDependencies": {
+    "@coral-xyz/anchor": "^0.30.0",
+    "@solana/spl-token": "^0.4.0",
+    "@solana/web3.js": "^1.93.0",
+    "@types/jest": "^29.5.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "mocha": "^10.0.0"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.30.0",
+    "@solana/spl-token": "^0.4.0",
+    "@solana/web3.js": "^1.93.0"
+  }
+}

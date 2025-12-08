@@ -1,0 +1,27 @@
+[workspace]
+members = [
+    "programs/investment_escrow",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.91.1"
+
+[workspace.dependencies]
+anchor-lang = { version = "0.30.0", features = ["init-if-needed"] }
+anchor-spl = "0.30.0"
+solana-program = "~1.18"
+borsh = "0.10"
+thiserror = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.test]
+opt-level = 3
+

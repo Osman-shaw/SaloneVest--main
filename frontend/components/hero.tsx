@@ -47,7 +47,7 @@ export function Hero({ onConnect }: HeroProps) {
               </div>
               <Button
                 variant="outline"
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/opportunities')}
                 className="rounded-full px-8 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
               >
                 Explore Opportunities <ArrowRight className="ml-2 h-4 w-4" />

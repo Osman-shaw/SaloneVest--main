@@ -34,7 +34,7 @@ export default function AdminWithdrawalsPage() {
         setProcessing(withdrawalId)
         try {
             await apiClient.put(`/api/withdrawals/${withdrawalId}/approve`, {
-                adminId: user.id,
+                adminId: user.publicKey,
                 transactionReference: `REF-${Date.now()}`
             })
             // Refresh data

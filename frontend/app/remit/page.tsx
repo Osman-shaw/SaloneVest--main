@@ -11,7 +11,8 @@ import { useBalance } from '@/hooks/use-balance'
 
 export default function RemitPage() {
     const { user } = useUser()
-    const { balance } = useBalance()
+    const walletAddress = typeof window !== 'undefined' ? localStorage.getItem('walletAddress') : null
+    const { balance } = useBalance(walletAddress)
     const [activeTab, setActiveTab] = useState('send')
 
     if (!user) {
@@ -106,7 +107,9 @@ export default function RemitPage() {
                                             <CardTitle className="text-base">Current Balance</CardTitle>
                                         </CardHeader>
                                         <CardContent>
-                                            <p className="text-3xl font-bold text-green-600">${balance.toFixed(2)}</p>
+                                            <p className="text-3xl font-bold text-green-600">
+                                                ${balance !== null ? balance.toFixed(2) : '0.00'}
+                                            </p>
                                             <p className="text-sm text-muted-foreground mt-1">USDC</p>
                                         </CardContent>
                                     </Card>

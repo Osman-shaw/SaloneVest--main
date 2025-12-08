@@ -1,0 +1,25 @@
+[package]
+name = "investment_escrow"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.91.1"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+
+[dependencies]
+anchor-lang = { workspace = true }
+anchor-spl = { workspace = true }
+solana-program = { workspace = true }
+borsh = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+solana-program-test = "~1.18"
+solana-sdk = "~1.18"
+
