@@ -1,8 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { WalletConnect } from "./wallet-connect"
+import WalletConnect from "./wallet-connect"
+import { ApiConnectionStatus } from "./api-connection-status"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "@/components/mode-toggle"
 import { Menu, X, Wallet } from "lucide-react"
@@ -23,20 +25,36 @@ interface NavbarProps {
 }
 
 export function Navbar({ isConnected, walletAddress }: NavbarProps) {
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { formatted, loading } = useBalance(walletAddress || null)
   const { isAdmin } = useUser()
 
+  const handleDisconnect = () => {
+    // Clear wallet connection
+    localStorage.removeItem('walletAddress')
+    localStorage.removeItem('walletConnected')
+    
+    // Close dropdown
+    setIsMobileMenuOpen(false)
+    
+    // Redirect to home
+    router.push('/')
+  }
+
   const navigationLinks = isConnected
     ? [
-      { href: "/dashboard", label: "Discover" },
-      { href: "/portfolio", label: "Portfolio" },
-      { href: "/remit", label: "Remit" },
-      { href: "/sandbox", label: "Sandbox" },
-      { href: "/profile", label: "Profile" },
-      { href: "/legal", label: "Legal" },
-      // Add Admin link if user is admin
-      ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
+      { href: "/dashboard", label: "🔍 Discover" },
+      { href: "/portfolio", label: "📊 Portfolio" },
+      { href: "/remit", label: "💸 Remit" },
+      { href: "/sandbox", label: "🧪 Sandbox" },
+      { href: "/profile", label: "👤 Profile" },
+      { href: "/legal", label: "⚖️ Legal" },
+      // Add Admin links if user is admin
+      ...(isAdmin ? [
+        { href: "/admin/withdrawals", label: "💰 Withdrawals" },
+        { href: "/admin", label: "⚙️ Admin" }
+      ] : []),
     ]
     : [
       { href: "#features", label: "Features" },
@@ -71,8 +89,10 @@ export function Navbar({ isConnected, walletAddress }: NavbarProps) {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            {/* Assuming NotificationCenter, DropdownMenu, Button, ModeToggle, connectWallet, publicKey, disconnect, router are defined or imported elsewhere */}
-            {/* <NotificationCenter /> */} {/* Placeholder for NotificationCenter */}
+            {/* API Connection Status */}
+            <ApiConnectionStatus />
+            
+            {/* Wallet and user menu */}
             {isConnected ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -88,7 +108,7 @@ export function Navbar({ isConnected, walletAddress }: NavbarProps) {
                   <DropdownMenuItem>
                     <Link href="/profile" className="w-full">Profile</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDisconnect}>
                     Disconnect
                   </DropdownMenuItem>
                 </DropdownMenuContent>

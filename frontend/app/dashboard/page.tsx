@@ -4,16 +4,23 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { InvestmentDashboard } from "@/components/investment-dashboard"
+import { AccountSummary } from "@/components/account-summary"
+import { PortfolioSummary } from "@/components/portfolio-summary"
+import { RecentTransactions } from "@/components/recent-transactions"
 
 export default function DashboardPage() {
   const [isConnected, setIsConnected] = useState(false)
+  const [walletAddress, setWalletAddress] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
     const walletConnected = localStorage.getItem("walletConnected") === "true"
-    if (walletConnected) {
+    const address = localStorage.getItem("walletAddress")
+    
+    if (walletConnected && address) {
       setIsConnected(true)
+      setWalletAddress(address)
     }
     setIsLoading(false)
   }, [])
@@ -43,14 +50,8 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex justify-center">
-            {/* We can reuse the WalletConnect button from the navbar, but here we might want a larger call to action. 
-                For now, let's guide them to the navbar or just render a button if we have access to the component.
-                The Navbar already has a connect button, but a big button here is better UX.
-             */}
-            {/* Since WalletConnect is a client component that handles connection, we can use it here if we import it, 
-                 but it's not imported in the original file. Let's import it. */}
             <div className="p-4 border rounded-lg bg-muted/50">
-              <p className="text-sm text-muted-foreground mb-4">Click the "Connect Phantom" button in the top right or below to get started.</p>
+              <p className="text-sm text-muted-foreground mb-4">Click the "Connect Phantom" button in the top right to get started.</p>
             </div>
           </div>
         </div>
@@ -61,7 +62,45 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar isConnected={isConnected} />
-      <InvestmentDashboard />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="space-y-8">
+          {/* Welcome Header */}
+          <div className="space-y-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-base md:text-lg text-muted-foreground">
+              Welcome back! Here's your investment overview.
+            </p>
+          </div>
+
+          {/* Account & Portfolio Overview Section */}
+          <div className="grid gap-6 lg:grid-cols-3">
+            {/* Account Summary - Takes 1/3 on desktop */}
+            <div className="lg:col-span-1">
+              <AccountSummary walletAddress={walletAddress} />
+            </div>
+
+            {/* Portfolio Summary Stats - Takes 2/3 on desktop */}
+            <div className="lg:col-span-2">
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-foreground">Portfolio Overview</h2>
+                <PortfolioSummary walletAddress={walletAddress} />
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Transactions */}
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Activity</h2>
+            <RecentTransactions walletAddress={walletAddress} />
+          </div>
+
+          {/* Investment Opportunities Section */}
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Explore More Opportunities</h2>
+            <InvestmentDashboard />
+          </div>
+        </div>
+      </div>
     </main>
   )
 }

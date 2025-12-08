@@ -1,6 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import { WalletConnect } from "./wallet-connect"
+import WalletConnect from "./wallet-connect"
 import { ArrowRight, TrendingUp } from "lucide-react"
 
 import { useRouter } from "next/navigation"

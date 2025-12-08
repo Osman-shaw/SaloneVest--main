@@ -25,7 +25,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Check for existing session
         const storedPublicKey = localStorage.getItem("publicKey")
-        if (storedPublicKey) {
+        const walletConnected = localStorage.getItem("walletConnected")
+        
+        // Only try to restore session if wallet was previously connected
+        if (storedPublicKey && walletConnected === "true") {
             login(storedPublicKey)
         } else {
             setIsLoading(false)
@@ -38,13 +41,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             let userData;
 
             if (signature && message) {
-                // Authenticate with backend
+                // Authenticate with backend using signature
                 const response = await api.auth.connect(publicKey, signature, message);
                 userData = response.data.user;
             } else {
-                // Just fetch profile if already authenticated/connected
-                const response = await api.user.get(publicKey);
-                userData = response.data;
+                // Try to fetch existing profile without signature
+                try {
+                    const response = await api.user.get(publicKey);
+                    userData = response.data.user || response.data;
+                } catch (fetchError: any) {
+                    // User doesn't exist yet - this is OK, they'll be created on first auth
+                    console.log("User profile not found (first login), will be created on auth")
+                    setIsLoading(false)
+                    return
+                }
             }
 
             if (userData) {
@@ -54,10 +64,30 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
             localStorage.setItem("publicKey", publicKey)
             localStorage.setItem("walletConnected", "true")
-        } catch (error) {
+        } catch (error: any) {
             console.error("Login failed:", error)
-            // Fallback for demo/offline if needed, or just show error
-            toast.error("Login failed", { description: "Could not load user profile." })
+            
+            // Provide helpful error messages based on error type
+            let errorMessage = "Login failed"
+            let errorDescription = ""
+
+            if (error.response?.status === 404) {
+                errorMessage = "User not found"
+                errorDescription = "Connect your wallet and sign to create an account"
+            } else if (error.response?.status === 401) {
+                errorMessage = "Invalid signature"
+                errorDescription = "The signature verification failed"
+            } else if (error.code === 'ECONNREFUSED' || error.message?.includes('connect')) {
+                errorMessage = "Cannot connect to backend"
+                errorDescription = "Is the backend server running? Visit /debug"
+            } else if (error.response?.status === 500) {
+                errorMessage = "Server error"
+                errorDescription = "Check backend logs for details"
+            }
+
+            if (errorMessage !== "User not found") {
+                toast.error(errorMessage, { description: errorDescription })
+            }
         } finally {
             setIsLoading(false)
         }

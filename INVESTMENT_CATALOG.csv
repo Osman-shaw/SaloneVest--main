@@ -1,0 +1,24 @@
+Name,Type,Category,Sector,Location,Description,Risk Level,Expected ROI (%),Min Investment ($),Target Funding ($),Currently Raised ($),Funding %,Duration,Status
+Monime Digital Payments,Startup,Growth,Fintech,Freetown,Mobile money and digital payment platform,HIGH,24.5,100,200000,45000,22.5%,5 years,Active
+DirectEd Learning Platform,Startup,Impact,Education Technology,Freetown/Bo,EdTech platform for online education and skills training,MODERATE,18.0,75,150000,60000,40%,4 years,Active
+Afro Mobile Tech,Startup,Growth,Technology,Freetown,Mobile app development and digital solutions,HIGH,22.0,150,100000,25000,25%,3 years,Active
+Freetown Agro-Processing Hub,Startup,Growth,Agriculture,Freetown,Modern cassava processing facility,MODERATE,18.5,100,50000,12500,25%,3 years,Active
+Sierra Fresh Farms,Startup,Growth,Agriculture,Bo/Kenema,Organic vegetable farming and distribution,MODERATE,16.5,200,80000,35000,43.75%,4 years,Active
+Cocoa Export Cooperative,Startup,Impact,Agriculture,Kenema/Kailahun,Fair-trade cocoa farming cooperative,MODERATE,17.0,250,120000,55000,45.8%,5 years,Active
+Easy Solar Distribution,Startup,Impact,Clean Energy,Nationwide,Solar energy solutions distributor,LOW,12.5,50,100000,75000,75%,4 years,Active
+Solar Power Distribution,Startup,Impact,Energy,Provincial Districts,Clean energy solutions with pay-as-you-go model,HIGH,22.0,250,75000,15000,20%,4 years,Active
+MediConnect Telemedicine,Startup,Impact,Healthcare,Freetown/Provincial,Telemedicine platform connecting patients with doctors,HIGH,20.0,100,90000,30000,33.3%,4 years,Active
+PharmaSL Supply Chain,Startup,Growth,Healthcare,Nationwide,Pharmaceutical distribution network,MODERATE,19.0,300,150000,70000,46.7%,5 years,Active
+Freetown Beach Resorts,Startup,Growth,Tourism,Western Area,Eco-friendly beach resort development,HIGH,25.0,500,300000,120000,40%,6 years,Active
+Textiles SL Manufacturing,Startup,Growth,Manufacturing,Freetown,Local textile manufacturing,MODERATE,17.5,200,180000,85000,47.2%,5 years,Active
+Sierra Leone Treasury Bills - 91 Day,Bond,Income,Government Securities,Nationwide,Government-backed short-term securities (91-day),LOW,12.0,500,100000,75000,75%,91 days,Active
+Sierra Leone Treasury Bills - 182 Day,Bond,Income,Government Securities,Nationwide,Government-backed short-term securities (182-day),LOW,13.5,500,150000,90000,60%,182 days,Active
+Sierra Leone Treasury Bills - 364 Day,Bond,Income,Government Securities,Nationwide,Government-backed one-year securities,LOW,15.0,1000,200000,120000,60%,364 days,Active
+Infrastructure Development Bonds,Bond,Income,Infrastructure,National Projects,Finance critical road and bridge projects,LOW,14.0,1000,150000,90000,60%,5 years,Active
+Education Sector Bonds,Bond,Income,Education,Nationwide,Government bonds for school construction,LOW,13.0,750,120000,65000,54.2%,7 years,Active
+Sierra Leone Growth Fund,Fund,Growth,Diversified Portfolio,Nationwide,Diversified mutual fund of top companies,MODERATE,16.5,100,250000,140000,56%,Ongoing,Active
+Tech Skills Training Fund,Fund,Impact,Education,Freetown/Bo/Kenema,Invest in coding bootcamps,MODERATE,15.0,50,25000,8000,32%,2 years,Active
+Microfinance Growth Fund,Fund,Growth,Financial Services,Nationwide,Support small business lending,MODERATE,16.5,200,60000,30000,50%,3 years,Active
+Women Entrepreneurs Fund,Fund,Impact,Social Impact,Nationwide,Support women-owned businesses,MODERATE,14.5,100,80000,42000,52.5%,4 years,Active
+Agriculture Innovation Fund,Fund,Growth,Agriculture,Nationwide,Invest in modern farming techniques,MODERATE,17.0,150,100000,50000,50%,5 years,Active
+Clean Energy Impact Fund,Fund,Impact,Clean Energy,Nationwide,Renewable energy fund,MODERATE,15.5,200,150000,75000,50%,6 years,Active
