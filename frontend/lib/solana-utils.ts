@@ -1,7 +1,7 @@
 import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js"
 
-// Initialize Solana connection (mainnet-beta or devnet)
-const RPC_ENDPOINT = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com"
+// Initialize Solana connection (devnet for testing/development)
+const RPC_ENDPOINT = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.devnet.solana.com"
 export const connection = new Connection(RPC_ENDPOINT, "confirmed")
 
 // USDC Mint Address on Solana

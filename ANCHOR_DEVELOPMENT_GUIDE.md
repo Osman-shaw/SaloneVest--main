@@ -1,30 +1,137 @@
 # ⚓ Anchor Smart Contract Development Guide
 
-## Quick Start
+## Quick Start - Docker Setup (Recommended)
 
 ### Prerequisites ✓
-- ✅ Rust 1.91.1 installed
-- ✅ Cargo installed
+- ✅ Rust 1.91.1 installed (for cross-compilation reference)
+- ✅ Cargo installed (for local testing)
 - ✅ WASM target (wasm32-unknown-unknown) installed
-- ⏳ Anchor AVM installing...
+- ✅ **Docker Desktop** installed (https://www.docker.com/products/docker-desktop)
 
-## Installation Progress
+### Installation Progress
 
-### Current Status
+### Current Status - Docker-Based Build Environment Ready ✓
+
+**Solution:** Use Docker to compile Anchor smart contracts on Windows.
+
 ```
-$ cargo install --git https://github.com/coral-xyz/anchor avm --locked
-[Downloading Anchor from GitHub...]
-Progress: ~7%
-Estimated Time: 10-15 minutes
+Why Docker?
+✅ No Visual C++ installation needed
+✅ Isolated environment (won't affect Windows)
+✅ Works exactly like production
+✅ All tools pre-installed (Rust, Solana CLI, Anchor, Node.js)
+✅ Can delete container after use
 ```
 
-### When Installation Completes
+### 3-Step Setup Process
 
-Verify it worked:
-```bash
-avm --version
-# Should show: avm 0.x.x
+#### Step 1: Build Docker Image (One-time, 5-10 minutes)
+```powershell
+# Navigate to anchor folder
+cd D:\SaloneVest--main\anchor
+
+# Build Docker image with all tools pre-installed
+pwsh build-anchor.ps1 build
 ```
+
+**What happens:**
+- Downloads base Rust image (500MB)
+- Installs Solana CLI, Anchor, Node.js
+- Compiles everything needed
+- Creates `salonevest-anchor:latest` image
+
+#### Step 2: Verify Installation
+```powershell
+# Check all versions are installed correctly
+pwsh build-anchor.ps1 status
+```
+
+**Expected output:**
+```
+=== Versions ===
+anchor-cli 0.30.0
+solana-cli 1.18.0
+rustc 1.75.0
+cargo 1.75.0
+node v20.x.x
+
+=== Anchor Setup ===
+0.30.0 (active)
+```
+
+#### Step 3: Compile Your Smart Contract
+```powershell
+# Compile the investment_escrow smart contract
+pwsh build-anchor.ps1 compile
+```
+
+**Output files will be in:**
+```
+D:\SaloneVest--main\anchor\target\deploy\
+├── investment_escrow.so
+├── investment_escrow-keypair.json
+└── idl\investment_escrow.json
+```
+
+### Available Commands
+
+```powershell
+pwsh build-anchor.ps1 build      # Build Docker image (first time only)
+pwsh build-anchor.ps1 compile    # Compile smart contract
+pwsh build-anchor.ps1 test       # Run test suite
+pwsh build-anchor.ps1 clean      # Clean build artifacts
+pwsh build-anchor.ps1 shell      # Open interactive shell in Docker
+pwsh build-anchor.ps1 status     # Check versions
+pwsh build-anchor.ps1 deploy     # Deploy to Solana Devnet
+```
+
+### File Structure in SaloneVest
+
+```
+D:\SaloneVest--main\anchor\
+├── Dockerfile                 # ← Docker image definition
+├── build-anchor.ps1           # ← Build script (PowerShell)
+├── .dockerignore              # ← Ignore unnecessary files
+├── Cargo.toml                 # Workspace config
+├── Anchor.toml                # Anchor config
+├── programs/
+│   └── investment_escrow/     # Smart contract code
+│       ├── src/
+│       │   └── lib.rs
+│       └── Cargo.toml
+├── tests/
+│   └── investment_escrow.ts   # TypeScript tests
+└── target/                    # Build output (auto-generated)
+    └── deploy/
+        ├── investment_escrow.so
+        ├── idl/
+        └── ...
+```
+
+### Complete Workflow
+
+```powershell
+# First time only: Build the Docker image
+pwsh build-anchor.ps1 build
+
+# Every time you want to build:
+pwsh build-anchor.ps1 compile
+
+# To run tests:
+pwsh build-anchor.ps1 test
+
+# To get an interactive shell:
+pwsh build-anchor.ps1 shell
+# Then run commands directly: anchor build, solana config, etc.
+
+# To clean up:
+pwsh build-anchor.ps1 clean
+
+# To deploy to devnet:
+pwsh build-anchor.ps1 deploy
+```
+
+
 
 ## Project Structure
 

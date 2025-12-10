@@ -1,8 +1,8 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 
 // Solana configuration
-export const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
-export const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'mainnet-beta';
+export const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.devnet.solana.com';
+export const SOLANA_NETWORK = process.env.SOLANA_NETWORK || 'devnet';
 
 // Initialize Solana connection
 export const connection = new Connection(SOLANA_RPC_URL, 'confirmed');
