@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
@@ -55,6 +55,14 @@ const statusBadges = {
 }
 
 export default function InvestmentDetailPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading investment details...</div>}>
+      <InvestmentContent />
+    </React.Suspense>
+  )
+}
+
+function InvestmentContent() {
   const searchParams = useSearchParams()
   const investmentId = searchParams.get("id")
   const investment = investments.find((inv) => inv.id === investmentId)
@@ -415,8 +423,8 @@ export default function InvestmentDetailPage() {
                     {investment.riskLevel === 'high'
                       ? 'This is a high-risk investment. Past performance does not guarantee future results. Your investment capital may be at risk.'
                       : investment.riskLevel === 'medium'
-                      ? 'This is a medium-risk investment. Returns are not guaranteed. Please review all documentation before investing.'
-                      : 'This is a low-risk investment backed by government guarantees. However, interest rate and currency risks apply.'}
+                        ? 'This is a medium-risk investment. Returns are not guaranteed. Please review all documentation before investing.'
+                        : 'This is a low-risk investment backed by government guarantees. However, interest rate and currency risks apply.'}
                   </p>
                 </CardContent>
               </Card>
