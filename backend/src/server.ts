@@ -96,6 +96,11 @@ const startServer = async () => {
     }
 };
 
-startServer();
+// Only start server if run directly (not imported)
+if (require.main === module) {
+    startServer();
+}
 
 export default app;
+export { connectDB }; // Export for Vercel handler
+
