@@ -1,23 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
-import WalletConnect from "./wallet-connect"
-import { ApiConnectionStatus } from "./api-connection-status"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
+import { WalletConnect } from "./wallet-connect"
 import { Menu, X, Wallet } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { NotificationCenter } from "@/components/notifications/notification-center"
 import { useBalance } from "@/hooks/use-balance"
 import { Notifications } from "@/components/notifications"
-import { useUser } from "@/context/user-context"
 
 interface NavbarProps {
   isConnected: boolean
@@ -25,41 +13,21 @@ interface NavbarProps {
 }
 
 export function Navbar({ isConnected, walletAddress }: NavbarProps) {
-  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { formatted, loading } = useBalance(walletAddress || null)
-  const { isAdmin } = useUser()
-
-  const handleDisconnect = () => {
-    // Clear wallet connection
-    localStorage.removeItem('walletAddress')
-    localStorage.removeItem('walletConnected')
-    
-    // Close dropdown
-    setIsMobileMenuOpen(false)
-    
-    // Redirect to home
-    router.push('/')
-  }
 
   const navigationLinks = isConnected
     ? [
-      { href: "/dashboard", label: "🔍 Discover" },
-      { href: "/portfolio", label: "📊 Portfolio" },
-      { href: "/remit", label: "💸 Remit" },
-      { href: "/sandbox", label: "🧪 Sandbox" },
-      { href: "/profile", label: "👤 Profile" },
-      { href: "/legal", label: "⚖️ Legal" },
-      // Add Admin links if user is admin
-      ...(isAdmin ? [
-        { href: "/admin/withdrawals", label: "💰 Withdrawals" },
-        { href: "/admin", label: "⚙️ Admin" }
-      ] : []),
+      { href: "/dashboard", label: "Discover" },
+      { href: "/portfolio", label: "Portfolio" },
+      { href: "/profile", label: "Profile" },
+      { href: "/legal", label: "Legal" },
+      // Add Admin link if wallet matches admin (hardcoded for demo)
+      ...(walletAddress === 'AdminWalletAddress' ? [{ href: "/admin", label: "Admin" }] : []),
     ]
     : [
       { href: "#features", label: "Features" },
       { href: "#how-it-works", label: "How It Works" },
-      { href: "/legal", label: "Legal" },
       { href: "#faq", label: "FAQ" },
     ]
 
@@ -88,48 +56,29 @@ export function Navbar({ isConnected, walletAddress }: NavbarProps) {
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
-            {/* API Connection Status */}
-            <ApiConnectionStatus />
-            
-            {/* Wallet and user menu */}
-            {isConnected ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <Wallet className="h-4 w-4" />
-                    {/* {publicKey?.slice(0, 4)}...{publicKey?.slice(-4)} */}
-                    <span className="text-sm font-medium">
-                      {loading ? "..." : formatted}
-                    </span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    <Link href="/profile" className="w-full">Profile</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDisconnect}>
-                    Disconnect
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <WalletConnect isConnected={isConnected} />
+          <div className="flex items-center gap-4">
+            {isConnected && walletAddress && (
+              <>
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-muted rounded-lg">
+                  <Wallet className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">
+                    {loading ? "..." : formatted}
+                  </span>
+                </div>
+                <Notifications walletAddress={walletAddress} />
+              </>
             )}
-            {/* <ModeToggle /> */} {/* Placeholder for ModeToggle */}
-            {isConnected && walletAddress && <Notifications walletAddress={walletAddress} />}
-          </div>
+            <div className="hidden sm:block">
+              <WalletConnect isConnected={isConnected} />
+            </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-2">
-            {/* <NotificationCenter /> */} {/* Placeholder for NotificationCenter */}
-            {/* <ModeToggle /> */} {/* Placeholder for ModeToggle */}
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              className="md:hidden p-2 hover:bg-muted rounded-lg transition-colors"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>

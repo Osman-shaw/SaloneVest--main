@@ -27,6 +27,6 @@ const TransactionSchema: Schema = new Schema({
 });
 
 TransactionSchema.index({ user: 1, timestamp: -1 });
-
+TransactionSchema.index({ txHash: 1 });
 
 export default mongoose.model<ITransaction>('Transaction', TransactionSchema);

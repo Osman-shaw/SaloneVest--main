@@ -1,14 +1,14 @@
 import { Connection, PublicKey, Transaction, SystemProgram } from "@solana/web3.js"
 
-// Initialize Solana connection (devnet for testing/development)
-const RPC_ENDPOINT = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.devnet.solana.com"
+// Initialize Solana connection (mainnet-beta or devnet)
+const RPC_ENDPOINT = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com"
 export const connection = new Connection(RPC_ENDPOINT, "confirmed")
 
 // USDC Mint Address on Solana
 export const USDC_MINT = new PublicKey("EPjFWaJgt5WW5vFZmDSK3QE2YU2T3YD5FvYuK8xJSLqg")
 
-// Treasury Wallet Address (where investments are sent)
-export const TREASURY_WALLET = new PublicKey("mvines9iiHiQTysrwkJjGf2gb9Ex9jXJX8ns3qwf2kN") // Valid Devnet address for testing (Updated)
+// SaloneVest Program ID (placeholder - would be deployed smart contract)
+export const SALONESVEST_PROGRAM_ID = new PublicKey("SaLoNeVeSt111111111111111111111111111111111")
 
 export interface WalletConnection {
   publicKey: PublicKey
@@ -36,15 +36,15 @@ export async function signInvestmentTransaction(
   try {
     console.log("[Solana] Preparing investment transaction...", { investmentId, amount })
 
-    // Create transaction
+    // Create transaction (simplified - would include actual USDC transfer)
     const transaction = new Transaction()
 
-    // Add instruction to transfer SOL to Treasury
+    // Add instruction to Solana program (would be custom instruction in real implementation)
     transaction.add(
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
-        toPubkey: TREASURY_WALLET,
-        lamports: Math.floor(amount * 1e9), // Convert SOL to lamports
+        toPubkey: SALONESVEST_PROGRAM_ID,
+        lamports: Math.floor(amount * 1e9), // Convert to lamports (simplified)
       }),
     )
 
@@ -87,26 +87,26 @@ export async function signInvestmentTransaction(
   }
 }
 
-import { db } from "./db"
-
 /**
  * Store transaction details in IndexedDB for offline access
  */
-export async function storeTransactionLocally(details: TransactionDetails) {
+export function storeTransactionLocally(details: TransactionDetails) {
   if (typeof window === "undefined") return
 
-  try {
-    await db.addTransaction({
-      type: "investment",
-      amount: details.amount,
-      recipient: "Treasury",
-      txHash: details.txHash,
-      date: new Date(details.timestamp).toISOString().split('T')[0],
-      status: details.status === "confirmed" ? "completed" : "pending",
-      synced: details.status === "confirmed" ? 1 : 0
-    })
-  } catch (error) {
-    console.error("Failed to store transaction locally:", error)
+  const request = indexedDB.open("SaloneVest", 1)
+
+  request.onupgradeneeded = (event: any) => {
+    const db = event.target.result
+    if (!db.objectStoreNames.contains("transactions")) {
+      db.createObjectStore("transactions", { keyPath: "id", autoIncrement: true })
+    }
+  }
+
+  request.onsuccess = (event: any) => {
+    const db = event.target.result
+    const transaction = db.transaction(["transactions"], "readwrite")
+    const store = transaction.objectStore("transactions")
+    store.add(details)
   }
 }
 
@@ -114,20 +114,29 @@ export async function storeTransactionLocally(details: TransactionDetails) {
  * Get stored transactions from IndexedDB
  */
 export async function getStoredTransactions(): Promise<TransactionDetails[]> {
-  try {
-    const records = await db.getTransactions()
-    return records.map(r => ({
-      investmentId: r.id?.toString() || "0",
-      amount: r.amount,
-      investorAddress: "", // Not stored in new schema, but not critical for display
-      timestamp: new Date(r.date).getTime(),
-      txHash: r.txHash,
-      status: r.status === "completed" ? "confirmed" : "pending"
-    }))
-  } catch (error) {
-    console.error("Failed to get stored transactions:", error)
-    return []
-  }
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") {
+      resolve([])
+      return
+    }
+
+    const request = indexedDB.open("SaloneVest", 1)
+
+    request.onsuccess = (event: any) => {
+      const db = event.target.result
+      const transaction = db.transaction(["transactions"], "readonly")
+      const store = transaction.objectStore("transactions")
+      const getAllRequest = store.getAll()
+
+      getAllRequest.onsuccess = () => {
+        resolve(getAllRequest.result)
+      }
+    }
+
+    request.onerror = () => {
+      resolve([])
+    }
+  })
 }
 
 /**

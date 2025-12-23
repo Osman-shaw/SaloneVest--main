@@ -19,15 +19,13 @@
     "author": "SaloneVest",
     "license": "MIT",
     "dependencies": {
-        "@coral-xyz/anchor": "^0.32.1",
         "@solana/spl-token": "^0.1.8",
-        "@solana/web3.js": "^1.98.4",
+        "@solana/web3.js": "^1.95.8",
         "bs58": "^6.0.0",
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
         "mongoose": "^8.9.3",
-        "socket.io": "^4.8.1",
         "tweetnacl": "^1.0.3"
     },
     "devDependencies": {

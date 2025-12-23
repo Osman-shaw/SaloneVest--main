@@ -1,17 +1,13 @@
 "use client"
 import { Button } from "@/components/ui/button"
-import WalletConnect from "./wallet-connect"
+import { WalletConnect } from "./wallet-connect"
 import { ArrowRight, TrendingUp } from "lucide-react"
-
-import { useRouter } from "next/navigation"
 
 interface HeroProps {
   onConnect: () => void
 }
 
 export function Hero({ onConnect }: HeroProps) {
-  const router = useRouter()
-
   return (
     <section className="relative min-h-[calc(100vh-64px)] w-full overflow-hidden bg-background flex items-center">
       {/* Background Elements */}
@@ -45,11 +41,7 @@ export function Hero({ onConnect }: HeroProps) {
               <div className="scale-110">
                 <WalletConnect isConnected={false} />
               </div>
-              <Button
-                variant="outline"
-                onClick={() => router.push('/opportunities')}
-                className="rounded-full px-8 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
-              >
+              <Button variant="outline" className="rounded-full px-8 h-11 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all">
                 Explore Opportunities <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>

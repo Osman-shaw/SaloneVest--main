@@ -10,8 +10,6 @@ import investmentRoutes from './routes/investment.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import balanceRoutes from './routes/balance.routes';
 import adminRoutes from './routes/admin.routes';
-import seedRoutes from './routes/seed.routes';
-import withdrawalRoutes from './routes/withdrawal.routes';
 
 import { createServer } from 'http';
 import { initWebSocket } from './utils/websocket';
@@ -56,8 +54,6 @@ app.use('/api/investments', investmentRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/balance', balanceRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/seed', seedRoutes);
-app.use('/api/withdrawals', withdrawalRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -96,11 +92,6 @@ const startServer = async () => {
     }
 };
 
-// Only start server if run directly (not imported)
-if (require.main === module) {
-    startServer();
-}
+startServer();
 
 export default app;
-export { connectDB }; // Export for Vercel handler
-

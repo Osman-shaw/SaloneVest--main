@@ -10,9 +10,8 @@ SaloneVest is a **mobile-first decentralized application (DApp)** that enables d
 - **Non-Custodial Security**: Your keys, your crypto - powered by Phantom Wallet
 - **USDC Denominated**: Protect investments from local currency volatility
 - **Vetted Opportunities**: Invest in startups, bonds, and funds
-- **Real-Time Portfolio**: Track holdings and returns with live backend data
+- **Real-Time Portfolio**: Track holdings and returns in real-time
 - **Mobile-First**: Fully responsive design for any device
-- **Integrated Admin**: Comprehensive dashboard for user management
 
 ## 🏗️ Architecture
 
@@ -151,8 +150,6 @@ vercel deploy
 ### Backend
 Deploy to Railway, Render, or Heroku:
 ```bash
-
-
 cd backend
 npm run build
 # Follow your platform's deployment guide

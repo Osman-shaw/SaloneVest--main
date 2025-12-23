@@ -1,133 +1,160 @@
 "use client"
 
 import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Loader2, AlertCircle, Wallet } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useWallet } from "@/hooks/use-wallet"
 import { signInvestmentTransaction } from "@/lib/solana-utils"
-import { toast } from "sonner"
+import { AlertCircle } from "lucide-react"
 
-interface InvestModalProps {
-  isOpen: boolean
-  onClose: () => void
-  investmentTitle: string
-  minAmount: number
-  currentPrice?: number
+interface Investment {
+  id: string
+  name: string
+  expectedYield: string
+  minInvestment: string
 }
 
-export function InvestModal({ isOpen, onClose, investmentTitle, minAmount, currentPrice }: InvestModalProps) {
+interface InvestModalProps {
+  investment: Investment
+  isOpen: boolean
+  onClose: () => void
+}
+
+export function InvestModal({ investment, isOpen, onClose }: InvestModalProps) {
   const [amount, setAmount] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSigningTx, setIsSigningTx] = useState(false)
   const [error, setError] = useState("")
+  const { wallet, isConnected, publicKey } = useWallet()
   const router = useRouter()
 
-  const handleInvest = async () => {
+  if (!isOpen) return null
+
+  const gasFee = 0.001
+  const traditionalFee = amount ? (Number.parseFloat(amount) * 0.08).toFixed(2) : "0"
+  const userSavings = amount ? (Number.parseFloat(traditionalFee) - gasFee).toFixed(2) : "0"
+
+  const handleConfirmInvestment = async () => {
     setError("")
-    setIsLoading(true)
+
+    if (!amount || Number.parseFloat(amount) <= 0) {
+      setError("Please enter a valid amount")
+      return
+    }
+
+    if (!wallet || !isConnected || !publicKey) {
+      setError("Wallet not connected. Please connect your Phantom wallet.")
+      return
+    }
+
+    setIsSigningTx(true)
 
     try {
-      // 1. Validate Amount
-      const investAmount = parseFloat(amount)
-      if (isNaN(investAmount) || investAmount < minAmount) {
-        throw new Error(`Minimum investment is $${minAmount}`)
-      }
-
-      // 2. Check Wallet Connection
-      const provider = window.phantom?.solana
-      if (!(provider as any)?.isPhantom || !provider?.publicKey) {
-        throw new Error("Please connect your Phantom wallet first")
-      }
-
-      // 3. Sign Transaction
-      const { success, txHash } = await signInvestmentTransaction(
-        { publicKey: provider.publicKey, signTransaction: provider.signTransaction },
-        investmentTitle, // Using title as ID for demo
-        investAmount
+      const result = await signInvestmentTransaction(
+        {
+          publicKey,
+          signTransaction: wallet.signTransaction.bind(wallet),
+          signAllTransactions: wallet.signAllTransactions?.bind(wallet),
+        },
+        investment.id,
+        Number.parseFloat(amount),
       )
 
-      if (!success) throw new Error("Transaction failed or rejected")
+      if (result.success && result.txHash) {
+        const params = new URLSearchParams({
+          id: investment.id,
+          amount: amount,
+          txId: result.txHash,
+          date: new Date().toISOString().split("T")[0],
+        })
 
-      // 4. Success Handling
-      toast.success("Investment Successful!", {
-        description: `You have successfully invested $${investAmount} in ${investmentTitle}.`,
-      })
-      onClose()
-      router.push(`/invoice?id=${txHash}&amount=${investAmount}&item=${encodeURIComponent(investmentTitle)}`)
-
-    } catch (err: any) {
+        router.push(`/invoice?${params.toString()}`)
+        onClose()
+      } else {
+        setError("Transaction failed. Please try again.")
+      }
+    } catch (err) {
       console.error("Investment error:", err)
-      setError(err.message || "An error occurred during investment")
-      toast.error("Investment Failed", {
-        description: err.message || "Please try again.",
-      })
+      setError(err instanceof Error ? err.message : "Failed to process investment")
     } finally {
-      setIsLoading(false)
+      setIsSigningTx(false)
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Invest in {investmentTitle}</DialogTitle>
-          <DialogDescription>
-            Enter the amount you wish to invest. Minimum investment is ${minAmount}.
-            {currentPrice && (
-              <span className="block mt-1 text-primary font-medium">
-                Current Share Price: ${currentPrice.toFixed(2)}
-              </span>
-            )}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="amount">Investment Amount (USDC)</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
-              <Input
-                id="amount"
-                type="number"
-                placeholder={minAmount.toString()}
-                className="pl-7"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            {currentPrice && amount && (
-              <p className="text-xs text-muted-foreground text-right">
-                Est. Shares: {(parseFloat(amount) / currentPrice).toFixed(4)}
-              </p>
-            )}
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/50 p-4 md:p-0">
+      <div className="w-full max-w-md rounded-t-2xl md:rounded-2xl bg-card border border-border p-6 shadow-xl max-h-[90vh] overflow-y-auto md:max-h-none">
+        <h2 className="text-2xl font-bold text-foreground mb-6">Invest in {investment.name}</h2>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground">Investment Amount (USDC)</label>
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={isSigningTx}
+              className="rounded-lg h-11"
+            />
+            <p className="text-xs text-muted-foreground">Minimum: {investment.minInvestment}</p>
           </div>
 
           {error && (
-            <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 p-3 rounded-md">
-              <AlertCircle className="h-4 w-4" />
-              <span>{error}</span>
+            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex gap-2">
+              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
 
-          <div className="bg-muted/50 p-3 rounded-md text-xs text-muted-foreground">
-            <p className="flex items-center gap-1 mb-1">
-              <Wallet className="h-3 w-3" /> Wallet: Phantom (Devnet)
-            </p>
-            <p>Transaction will be processed on Solana Devnet. Ensure you have SOL for gas fees.</p>
+          <div className="rounded-lg bg-secondary/50 p-4 space-y-3">
+            <div className="text-sm font-medium text-foreground">Fee Comparison</div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Blockchain Fee (SaloneVest)</span>
+                <span className="font-semibold text-primary">${gasFee.toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-muted-foreground">Traditional Remittance Fee</span>
+                <span className="font-semibold text-red-600">${traditionalFee}</span>
+              </div>
+              {amount && (
+                <div className="border-t border-border pt-2 flex justify-between text-sm font-semibold">
+                  <span className="text-foreground">You Save</span>
+                  <span className="text-primary">${userSavings}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {!isConnected && (
+            <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 flex gap-2">
+              <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                Please connect your Phantom wallet to proceed with investment.
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-2 pt-4">
+            <Button
+              onClick={handleConfirmInvestment}
+              disabled={isSigningTx || !isConnected}
+              className="w-full bg-primary hover:bg-accent text-primary-foreground font-semibold rounded-lg h-11"
+            >
+              {isSigningTx ? "Signing Transaction..." : isConnected ? "Confirm & Sign" : "Connect Wallet First"}
+            </Button>
+            <Button
+              onClick={onClose}
+              variant="outline"
+              disabled={isSigningTx}
+              className="w-full rounded-lg bg-transparent h-11"
+            >
+              Cancel
+            </Button>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button onClick={handleInvest} disabled={isLoading} className="gap-2">
-            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isLoading ? "Processing..." : "Confirm & Sign"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   )
 }

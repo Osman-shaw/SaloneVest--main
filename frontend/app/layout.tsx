@@ -1,17 +1,12 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-// Removed Google font imports to avoid remote fetch during build
+import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { OfflineIndicator } from "@/components/offline-indicator"
-import { Toaster } from "@/components/ui/sonner"
-import { PriceFeedProvider } from "@/context/price-feed-context"
-import { UserProvider } from "@/context/user-context"
-import { WalletContextProvider } from "@/contexts/wallet-provider"
 import "./globals.css"
-// Global CSS required by Solana wallet adapter UI
-import '@solana/wallet-adapter-react-ui/styles.css'
 
-// Using system fonts (Tailwind `font-sans`) to avoid Google Fonts fetch during build
+const _geist = Geist({ subsets: ["latin"] })
+const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "SaloneVest - Diaspora Investment Platform",
@@ -60,7 +55,7 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-icon.png",
   },
-  generator: 'v0.app'
+    generator: 'v0.app'
 }
 
 export const viewport: Viewport = {
@@ -85,16 +80,9 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`font-sans antialiased`}>
-        <WalletContextProvider>
-          <UserProvider>
-            <PriceFeedProvider>
-              {children}
-              <OfflineIndicator />
-              <Analytics />
-              <Toaster />
-            </PriceFeedProvider>
-          </UserProvider>
-        </WalletContextProvider>
+        {children}
+        <OfflineIndicator />
+        <Analytics />
       </body>
     </html>
   )

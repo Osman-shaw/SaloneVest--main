@@ -4,8 +4,6 @@ import Transaction from '../models/Transaction';
 import Portfolio from '../models/Portfolio';
 import User from '../models/User';
 import { connection } from '../config/solana';
-import { fetchInvestmentAccount } from '../services/solana.service';
-import { syncInvestment as syncInvestmentToDb } from '../services/blockchain-sync.service';
 
 export const getAllInvestments = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -34,32 +32,12 @@ export const getAllInvestments = async (req: Request, res: Response): Promise<vo
 export const getInvestmentById = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
-        const { syncBlockchain } = req.query;
 
-        // Fetch from MongoDB
         const investment = await Investment.findById(id);
 
         if (!investment) {
             res.status(404).json({ error: 'Investment not found' });
             return;
-        }
-
-        // Optionally sync with blockchain for latest data
-        if (syncBlockchain === 'true') {
-            try {
-                await syncInvestmentToDb(id);
-                // Refetch after sync
-                const updatedInvestment = await Investment.findById(id);
-                res.json({
-                    success: true,
-                    investment: updatedInvestment,
-                    syncedFromBlockchain: true
-                });
-                return;
-            } catch (syncError) {
-                console.error('Blockchain sync error:', syncError);
-                // Continue with cached data if sync fails
-            }
         }
 
         res.json({ success: true, investment });

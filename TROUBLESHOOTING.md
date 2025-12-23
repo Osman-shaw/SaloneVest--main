@@ -183,14 +183,6 @@ net start MongoDB
 # Or manually run mongod.exe from installation directory
 ```
 
-**Verify connection string in backend/.env:**
-```env
-# Local MongoDB
-MONGODB_URI=mongodb://localhost:27017/salonevest
-
-# Or MongoDB Atlas (cloud)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/salonevest?retryWrites=true&w=majority
-```
 
 **Test MongoDB connection:**
 ```powershell

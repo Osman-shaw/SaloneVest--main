@@ -1,21 +1,11 @@
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import {
+    getAssociatedTokenAddress,
+    createAssociatedTokenAccountInstruction,
+    getAccount,
+    TOKEN_PROGRAM_ID,
+} from '@solana/spl-token';
 import { connection, USDC_MINT } from '../config/solana';
-
-// Helper function to derive associated token address
-// Using deterministic derivation via PublicKey.findProgramAddress
-async function deriveAssociatedTokenAddress(
-    mint: PublicKey,
-    owner: PublicKey,
-    programId: PublicKey = TOKEN_PROGRAM_ID
-): Promise<PublicKey> {
-    const ASSOCIATED_TOKEN_PROGRAM_ID = new PublicKey('ATokenGPvbdGVqstVQmcLsNZAqeEbtQaMy64i1DeKCSj');
-    const [associatedAddress] = await PublicKey.findProgramAddress(
-        [owner.toBuffer(), programId.toBuffer(), mint.toBuffer()],
-        ASSOCIATED_TOKEN_PROGRAM_ID
-    );
-    return associatedAddress;
-}
 
 /**
  * Get USDC token account for a wallet
@@ -23,14 +13,18 @@ async function deriveAssociatedTokenAddress(
 export async function getUSDCTokenAccount(walletAddress: string): Promise<PublicKey | null> {
     try {
         const walletPubkey = new PublicKey(walletAddress);
-        const associatedTokenAddress = await deriveAssociatedTokenAddress(
+        const associatedTokenAddress = await getAssociatedTokenAddress(
             USDC_MINT,
             walletPubkey
         );
 
-        // Note: Actual token account verification would require RPC call
-        // For now, return the derived address
-        return associatedTokenAddress;
+        try {
+            await getAccount(connection, associatedTokenAddress);
+            return associatedTokenAddress;
+        } catch (error) {
+            // Token account doesn't exist
+            return null;
+        }
     } catch (error) {
         console.error('Error getting USDC token account:', error);
         return null;
@@ -42,10 +36,17 @@ export async function getUSDCTokenAccount(walletAddress: string): Promise<Public
  */
 export async function getUSDCBalance(walletAddress: string): Promise<number> {
     try {
-        // Note: Full balance verification would require RPC account lookup
-        // For now, balances are tracked via Portfolio model
-        // This is a placeholder for future blockchain balance syncing
-        return 0;
+        const tokenAccount = await getUSDCTokenAccount(walletAddress);
+
+        if (!tokenAccount) {
+            return 0;
+        }
+
+        const accountInfo = await getAccount(connection, tokenAccount);
+        // USDC has 6 decimals
+        const balance = Number(accountInfo.amount) / 1_000_000;
+
+        return balance;
     } catch (error) {
         console.error('Error fetching USDC balance:', error);
         return 0;
@@ -58,19 +59,20 @@ export async function getUSDCBalance(walletAddress: string): Promise<number> {
 export async function createUSDCTokenAccount(
     walletPubkey: PublicKey
 ): Promise<Transaction> {
-    // Note: Creating associated token accounts requires helper library
-    // For production, use @solana/spl-token v0.4+ with createAssociatedTokenAccountIdempotentInstruction
-    // or derive via Anchor for better compatibility
-    
-    const associatedTokenAddress = await deriveAssociatedTokenAddress(
+    const associatedTokenAddress = await getAssociatedTokenAddress(
         USDC_MINT,
         walletPubkey
     );
 
-    // Placeholder transaction - actual implementation requires proper instruction
-    const transaction = new Transaction();
-    // In production, add the proper CreateAssociatedTokenAccount instruction
-    
+    const transaction = new Transaction().add(
+        createAssociatedTokenAccountInstruction(
+            walletPubkey, // payer
+            associatedTokenAddress, // associated token account
+            walletPubkey, // owner
+            USDC_MINT // mint
+        )
+    );
+
     return transaction;
 }
 

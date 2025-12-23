@@ -13,27 +13,12 @@ export default function InvoicePage() {
 
   useEffect(() => {
     const walletConnected = localStorage.getItem("walletConnected") === "true"
-    if (walletConnected) {
+    if (!walletConnected) {
+      router.push("/")
+    } else {
       setIsConnected(true)
     }
-  }, [])
-
-  if (!isConnected) {
-    // We need to import Navbar here if we want to show it, but Invoice page didn't have Navbar imported.
-    // However, the user might want to see the invoice even if not connected? 
-    // The original code redirected to home.
-    // Let's show a simple unauthorized message or connect prompt.
-    // Since Navbar is not imported, let's just show a centered message.
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 text-center">
-        <div className="space-y-4">
-          <h1 className="text-2xl font-bold">Access Restricted</h1>
-          <p className="text-muted-foreground">Please connect your wallet to view this invoice.</p>
-          <Button onClick={() => router.push("/")}>Return Home</Button>
-        </div>
-      </div>
-    )
-  }
+  }, [router])
 
   const investmentId = searchParams.get("id") || "1"
   const amount = searchParams.get("amount") || "2500.00"

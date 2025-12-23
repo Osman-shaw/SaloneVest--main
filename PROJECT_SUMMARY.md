@@ -83,18 +83,6 @@ SaloneVest is a **production-ready, mobile-first DApp** for diaspora investors t
    - Offline status indicator
    - Sync on reconnection
 
-10. **Real-Time Analytics**
-    - Dynamic investment charts using Recharts
-    - Live price history visualization
-    - Interactive data tooltips
-    - Backend-driven performance metrics
-
-11. **Backend Integration**
-    - Full API connectivity (Auth, User, Portfolio)
-    - Secure wallet authentication via message signing
-    - Real-time data fetching with fallback support
-    - Admin user management dashboard
-
 ## Project Files Generated
 
 ### Core Application

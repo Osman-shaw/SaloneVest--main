@@ -29,7 +29,6 @@ NEXT_PUBLIC_PHANTOM_APP_URL=https://phantom.app
 
 # SaloneVest Configuration
 NEXT_PUBLIC_SALONESVEST_PROGRAM_ID=<deployed_program_id>
-NEXT_PUBLIC_API_URL=https://api.salonevest.io
 
 # Production domain
 NEXT_PUBLIC_DEV_SALONESVEST_REDIRECT_URL=https://saloneVest.io
