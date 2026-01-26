@@ -1,6 +1,18 @@
+# Dependency folders
 node_modules/
-dist/
+**/node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment variables
 .env
-*.log
+.env.local
+
+# Binary and OS files
+*.node
+*.dll
+*.exe
 .DS_Store
-coverage/
+.npm-cache 
