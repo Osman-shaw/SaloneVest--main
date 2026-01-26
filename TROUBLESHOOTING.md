@@ -190,7 +190,7 @@ net start MongoDB
 mongo --version
 
 # Test connection
-mongo "mongodb://localhost:27017"
+
 ```
 
 ---
