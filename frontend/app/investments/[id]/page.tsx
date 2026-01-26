@@ -49,11 +49,13 @@ export default function InvestmentDetailPage() {
         );
     }
 
-    const riskColor = {
+    const riskColors: Record<string, string> = {
         low: 'text-green-600 bg-green-50',
         moderate: 'text-yellow-600 bg-yellow-50',
         high: 'text-red-600 bg-red-50',
-    }[investment.risk];
+    };
+
+    const riskColor = riskColors[investment.risk];
 
     const progress = (investment.totalRaised / investment.targetAmount) * 100;
 
