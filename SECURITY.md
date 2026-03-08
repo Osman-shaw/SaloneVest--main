@@ -4,7 +4,15 @@
 
 SaloneVest is a non-custodial blockchain application. Security is a shared responsibility between users and the platform.
 
-## Non-Custodial Modelgit
+## Secrets and credentials (required)
+
+- **All secrets must come only from `.env` files.** Never hardcode or commit:
+  - MongoDB connection strings (especially **never** use or commit `mongodb+srv://username:password@cluster.mongodb.net/...` or any Atlas URI with real credentials).
+  - `JWT_SECRET`, API keys, or any other secrets.
+- Use `backend/.env` and `frontend/.env.local` for local development; use your platform’s environment variables (e.g. Render, Vercel) for production.
+- Keep `.env` and `.env.local` out of version control (they are in `.gitignore`). Do not add them to the repo or document real values in README, TROUBLESHOOTING, or SECURITY docs.
+
+## Non-Custodial Model
 
 - **Your Keys, Your Control**: Private keys never leave user's Phantom wallet
 - **No Access**: SaloneVest cannot access or recover user funds

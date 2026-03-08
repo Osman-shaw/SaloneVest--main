@@ -2,8 +2,7 @@
 
 ## ⚠️ Security note
 
-**Do not put real MongoDB connection strings in this file or in the repo.**  
-Use environment variables (e.g. `MONGODB_URI` in `backend/.env`) and placeholders like `mongodb://localhost:27017/salonevest` in docs. Never commit Atlas URIs (e.g. `mongodb+srv://...`) with real credentials.
+**Do not put real MongoDB connection strings or any secrets in this file or in the repo.** All secrets (e.g. `MONGODB_URI`, `JWT_SECRET`) must come **only from `.env`** files. Use environment variables (e.g. `MONGODB_URI` in `backend/.env`) and placeholders like `mongodb://localhost:27017/salonevest` in docs. Never commit Atlas URIs (e.g. `mongodb+srv://username:password@cluster.mongodb.net/...`) or other credentials.
 
 ---
 

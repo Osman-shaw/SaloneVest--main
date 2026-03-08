@@ -91,7 +91,7 @@ SaloneVest--main/
 
 ## 🔧 Environment Variables
 
-**Security:** Never commit real MongoDB connection strings (e.g. Atlas `mongodb+srv://...` with credentials). Use `backend/.env` and keep it out of version control.
+**Security:** Secrets (including MongoDB connection strings and JWT_SECRET) must be set **only in `.env`** and never committed. Never use or document real URIs like `mongodb+srv://username:password@cluster.mongodb.net/...`. Use `backend/.env` and keep it out of version control.
 
 ### Backend (.env)
 ```env

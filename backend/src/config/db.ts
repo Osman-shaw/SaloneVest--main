@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const connectDB = async (): Promise<void> => {
     try {
+        // Use only from .env; never hardcode mongodb+srv://... or other connection strings.
         const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/salonevest';
 
         await mongoose.connect(mongoURI);
