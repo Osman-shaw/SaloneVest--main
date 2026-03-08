@@ -4,7 +4,7 @@
 
 SaloneVest is a non-custodial blockchain application. Security is a shared responsibility between users and the platform.
 
-## Non-Custodial Model
+## Non-Custodial Modelgit
 
 - **Your Keys, Your Control**: Private keys never leave user's Phantom wallet
 - **No Access**: SaloneVest cannot access or recover user funds

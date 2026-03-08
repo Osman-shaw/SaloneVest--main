@@ -1,5 +1,12 @@
 # 🆘 Troubleshooting Guide - SaloneVest
 
+## ⚠️ Security note
+
+**Do not put real MongoDB connection strings in this file or in the repo.**  
+Use environment variables (e.g. `MONGODB_URI` in `backend/.env`) and placeholders like `mongodb://localhost:27017/salonevest` in docs. Never commit Atlas URIs (e.g. `mongodb+srv://...`) with real credentials.
+
+---
+
 ## Common Errors & Solutions
 
 ### 1. ❌ "Network Error: No response received"

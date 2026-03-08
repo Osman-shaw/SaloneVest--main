@@ -91,11 +91,13 @@ SaloneVest--main/
 
 ## 🔧 Environment Variables
 
+**Security:** Never commit real MongoDB connection strings (e.g. Atlas `mongodb+srv://...` with credentials). Use `backend/.env` and keep it out of version control.
+
 ### Backend (.env)
 ```env
-<!-- MONGODB_URI=mongodb://localhost:27017/salonevest -->
+# Set MONGODB_URI in .env (e.g. local: mongodb://localhost:27017/salonevest)
 PORT=5000
-<!-- SOLANA_RPC_URL=https://api.mainnet-beta.solana.com -->
+# SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 FRONTEND_URL=http://localhost:3000
 ```
 
