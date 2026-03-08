@@ -93,9 +93,9 @@ SaloneVest--main/
 
 ### Backend (.env)
 ```env
-MONGODB_URI=mongodb://localhost:27017/salonevest
+<!-- MONGODB_URI=mongodb://localhost:27017/salonevest -->
 PORT=5000
-SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+<!-- SOLANA_RPC_URL=https://api.mainnet-beta.solana.com -->
 FRONTEND_URL=http://localhost:3000
 ```
 
