@@ -38,6 +38,9 @@ export const metadata: Metadata = {
     title: "SaloneVest - Diaspora Investment Platform",
     description: "Invest in Sierra Leone with USDC on Solana. Zero remittance fees.",
   },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
 }
 
 export const viewport: Viewport = {
