@@ -6,6 +6,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  /** Hides the floating Next.js "N" dev indicator (development only). */
+  devIndicators: false,
 }
 
 export default nextConfig
