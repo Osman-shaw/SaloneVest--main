@@ -115,7 +115,7 @@ CORS_ORIGIN=http://localhost:3000
 | Frontend | https://localhost:3000 | - | - |
 | Backend | https://localhost:5000 | - | - |
 | Nginx | https://localhost | - | - |
-| MongoDB | mongodb://localhost:27017 | admin | salonevest123 |
+| MongoDB | localhost:27017 | admin | value of `MONGO_ROOT_PASSWORD` in `.env` |
 
 ## 📜 Deployment Commands
 
@@ -162,13 +162,13 @@ openssl req -x509 -newkey rsa:4096 `
 MongoDB is automatically initialized with:
 - **Database:** salonevest
 - **Username:** admin
-- **Password:** salonevest123 (change in .env)
+- **Password:** set `MONGO_ROOT_PASSWORD` in `.env` before first `docker-compose up`
 
 ### Database Operations
 
 ```powershell
 # Connect to MongoDB
-docker-compose exec mongodb mongosh -u admin -p salonevest123
+docker-compose exec -it mongodb mongosh -u admin --password
 
 # Create backup
 docker-compose exec mongodb mongodump --out /backup

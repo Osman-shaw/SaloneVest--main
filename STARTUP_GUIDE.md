@@ -25,7 +25,7 @@ npm install
 # - PORT: 5000
 # - FRONTEND_URL: http://localhost:3000
 # - SOLANA_RPC_URL: https://api.mainnet-beta.solana.com
-# - JWT_SECRET: your-secret-key-here
+# - JWT_SECRET: set a long random secret (see backend/.env.example)
 
 # Start the backend server
 npm start
@@ -132,7 +132,7 @@ npm run dev -- -p 3001
 ✅ FRONTEND_URL=http://localhost:3000
 ✅ SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
 ✅ SOLANA_NETWORK=mainnet-beta
-✅ JWT_SECRET=your-secret-key-here-change-in-production
+✅ JWT_SECRET=CHANGE_ME_GENERATE_RANDOM_SECRET
 ```
 
 ### Frontend (`frontend/.env.local`)

@@ -235,7 +235,7 @@ Invoke-WebRequest https://localhost:3000 -SkipCertificateCheck
 Invoke-WebRequest https://localhost:5000/health -SkipCertificateCheck
 
 # 5. Test MongoDB
-docker-compose exec mongodb mongosh -u admin -p salonevest123
+docker-compose exec -it mongodb mongosh -u admin --password
 
 # 6. View logs
 .\deploy-monolithic.ps1 logs

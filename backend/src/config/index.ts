@@ -1,6 +1,6 @@
 import { config as solanaConfig } from './solana';
 
-// All secrets must come from .env only. Never hardcode MONGODB_URI (e.g. mongodb+srv://...) or JWT_SECRET.
+// All secrets must come from .env only. Never hardcode MONGODB_URI or JWT_SECRET.
 const jwtSecret = process.env.JWT_SECRET;
 if (process.env.NODE_ENV === 'production' && !jwtSecret) {
     throw new Error('JWT_SECRET must be set in .env in production');

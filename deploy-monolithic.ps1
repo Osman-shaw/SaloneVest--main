@@ -45,6 +45,7 @@ if (-not (Test-Path "$ProjectRoot\.env")) {
     Copy-Item "$ProjectRoot\.env.example" "$ProjectRoot\.env"
     Write-Host "✓ .env created. Edit with your configuration:" -ForegroundColor Green
     Write-Host "  notepad $ProjectRoot\.env" -ForegroundColor Gray
+    Write-Host "  Replace CHANGE_ME_* placeholders (especially MONGO_ROOT_PASSWORD and JWT_SECRET) before docker-compose up." -ForegroundColor Yellow
 }
 
 Write-Host ""

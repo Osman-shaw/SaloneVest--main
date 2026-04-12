@@ -146,7 +146,7 @@ Start-Process https://localhost:3000
 Invoke-RestMethod -Uri https://localhost:5000/health -SkipCertificateCheck
 
 # Check MongoDB
-docker-compose exec mongodb mongosh -u admin -p salonevest123
+docker-compose exec -it mongodb mongosh -u admin --password
 ```
 
 ## Post-Deployment Configuration
@@ -363,13 +363,19 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
 
 ### MongoDB Indexing
 
+Connect with a password prompt (uses `MONGO_ROOT_PASSWORD` from your environment when you type it), then run:
+
 ```powershell
-docker-compose exec mongodb mongosh -u admin -p salonevest123 << 'EOF'
+docker-compose exec -it mongodb mongosh -u admin --password
+```
+
+In the `mongosh` shell:
+
+```javascript
 use salonevest
 db.users.createIndex({ email: 1 })
 db.investments.createIndex({ category: 1 })
 db.portfolios.createIndex({ userId: 1 })
-EOF
 ```
 
 ### Auto-restart on Failure

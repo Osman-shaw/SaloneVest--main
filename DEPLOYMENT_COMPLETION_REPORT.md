@@ -208,7 +208,7 @@ This command:
 ```
 Frontend:  https://localhost:3000
 Backend:   https://localhost:5000/health
-Database:  mongodb://admin:password@localhost:27017
+Database:  localhost:27017 (use credentials from `.env`; never embed passwords in docs)
 Nginx:     https://localhost
 ```
 

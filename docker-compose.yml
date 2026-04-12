@@ -7,7 +7,7 @@ services:
     container_name: salonevest-db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-salonevest123}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: salonevest
     ports:
       - "27017:27017"
@@ -35,11 +35,11 @@ services:
     environment:
       NODE_ENV: ${NODE_ENV:-production}
       PORT: 5000
-      MONGODB_URI: mongodb://admin:salonevest123@mongodb:27017/salonevest?authSource=admin
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/salonevest?authSource=admin
       SOLANA_RPC_URL: ${SOLANA_RPC_URL:-https://api.devnet.solana.com}
       PROGRAM_ID: ${PROGRAM_ID:-}
       SECRET_KEY: ${SECRET_KEY:-}
-      JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+      JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGIN: http://localhost:3000
     ports:
       - "5000:5000"

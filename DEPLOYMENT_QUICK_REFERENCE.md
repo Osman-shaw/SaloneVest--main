@@ -52,11 +52,11 @@ docker-compose exec backend bash         # SSH into container
 # These MUST be configured
 PROGRAM_ID=YOUR_DEPLOYED_PROGRAM_ID
 SOLANA_RPC_URL=https://api.devnet.solana.com
-JWT_SECRET=any-random-string-32-chars-long-x
+JWT_SECRET=CHANGE_ME_GENERATE_RANDOM_SECRET
 
-# These are pre-configured
+# Database (must match docker-compose / Mongo init)
 MONGO_ROOT_USER=admin
-MONGO_ROOT_PASSWORD=salonevest123
+MONGO_ROOT_PASSWORD=CHANGE_ME_STRONG_RANDOM_PASSWORD
 NODE_ENV=development
 ```
 
@@ -69,7 +69,7 @@ NETWORK=devnet
 
 # Database
 MONGO_ROOT_USER=admin
-MONGO_ROOT_PASSWORD=salonevest123
+MONGO_ROOT_PASSWORD=CHANGE_ME_STRONG_RANDOM_PASSWORD
 
 # Blockchain
 SOLANA_RPC_URL=https://api.devnet.solana.com
@@ -78,7 +78,7 @@ PROGRAM_ID=YOUR_PROGRAM_ID
 
 # API
 API_PORT=5000
-JWT_SECRET=your-random-secret-key
+JWT_SECRET=CHANGE_ME_GENERATE_RANDOM_SECRET
 CORS_ORIGIN=http://localhost:3000
 
 # Frontend
@@ -220,7 +220,7 @@ Invoke-WebRequest https://localhost:3000 -SkipCertificateCheck
 Invoke-WebRequest https://localhost:5000/health -SkipCertificateCheck
 
 # Database responding?
-docker-compose exec mongodb mongosh -u admin -p salonevest123
+docker-compose exec -it mongodb mongosh -u admin --password
 ```
 
 ## 🚀 Production Checklist

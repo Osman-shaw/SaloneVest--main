@@ -7,7 +7,7 @@ SaloneVest is a non-custodial blockchain application. Security is a shared respo
 ## Secrets and credentials (required)
 
 - **All secrets must come only from `.env` files.** Never hardcode or commit:
-  - MongoDB connection strings (especially **never** use or commit `mongodb+srv://username:password@cluster.mongodb.net/...` or any Atlas URI with real credentials).
+  - MongoDB connection strings (especially **never** commit the Atlas “Connect your application” string or any URI that embeds database user and password).
   - `JWT_SECRET`, API keys, or any other secrets.
 - Use `backend/.env` and `frontend/.env.local` for local development; use your platform’s environment variables (e.g. Render, Vercel) for production.
 - Keep `.env` and `.env.local` out of version control (they are in `.gitignore`). Do not add them to the repo or document real values in README, TROUBLESHOOTING, or SECURITY docs.
