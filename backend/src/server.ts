@@ -77,15 +77,28 @@ const startServer = async () => {
         // Initialize WebSocket
         initWebSocket(httpServer, FRONTEND_URL);
 
-        // Start listening
-        httpServer.listen(PORT, () => {
-            console.log(`\n🚀 SaloneVest Backend Server`);
-            console.log(`📡 Server running on http://localhost:${PORT}`);
-            console.log(`🌐 Frontend URL: ${FRONTEND_URL}`);
-            console.log(`📊 Health check: http://localhost:${PORT}/health`);
-            console.log(`⚡ WebSocket initialized`);
-            console.log(`\n✅ Ready to accept requests\n`);
-        });
+        // Start listening (attach 'error' before listen so EADDRINUSE is handled)
+        httpServer
+            .on('error', (err: NodeJS.ErrnoException) => {
+                if (err.code === 'EADDRINUSE') {
+                    console.error(
+                        `\n❌ Port ${PORT} is already in use (another backend or app is listening).\n` +
+                            `   • Stop the other process, or set PORT in backend/.env (e.g. PORT=5001).\n` +
+                            `   • Windows: netstat -ano | findstr :${PORT}   then   taskkill /PID <pid> /F\n`
+                    );
+                } else {
+                    console.error('❌ HTTP server error:', err);
+                }
+                process.exit(1);
+            })
+            .listen(PORT, () => {
+                console.log(`\n🚀 SaloneVest Backend Server`);
+                console.log(`📡 Server running on http://localhost:${PORT}`);
+                console.log(`🌐 Frontend URL: ${FRONTEND_URL}`);
+                console.log(`📊 Health check: http://localhost:${PORT}/health`);
+                console.log(`⚡ WebSocket initialized`);
+                console.log(`\n✅ Ready to accept requests\n`);
+            });
     } catch (error) {
         console.error('❌ Failed to start server:', error);
         process.exit(1);

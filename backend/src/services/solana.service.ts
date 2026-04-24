@@ -1,5 +1,4 @@
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js';
-import { AnchorProvider, Program } from '@coral-xyz/anchor';
 import { config } from '../config';
 
 // Solana connection

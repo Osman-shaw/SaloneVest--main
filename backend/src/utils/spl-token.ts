@@ -1,9 +1,8 @@
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import {
-    getAssociatedTokenAddress,
-    createAssociatedTokenAccountInstruction,
-    getAccount,
+    ASSOCIATED_TOKEN_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
+    Token,
 } from '@solana/spl-token';
 import { connection, USDC_MINT } from '../config/solana';
 
@@ -13,18 +12,18 @@ import { connection, USDC_MINT } from '../config/solana';
 export async function getUSDCTokenAccount(walletAddress: string): Promise<PublicKey | null> {
     try {
         const walletPubkey = new PublicKey(walletAddress);
-        const associatedTokenAddress = await getAssociatedTokenAddress(
+        const associatedTokenAddress = await Token.getAssociatedTokenAddress(
+            ASSOCIATED_TOKEN_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
             USDC_MINT,
             walletPubkey
         );
 
-        try {
-            await getAccount(connection, associatedTokenAddress);
-            return associatedTokenAddress;
-        } catch (error) {
-            // Token account doesn't exist
+        const info = await connection.getAccountInfo(associatedTokenAddress);
+        if (!info) {
             return null;
         }
+        return associatedTokenAddress;
     } catch (error) {
         console.error('Error getting USDC token account:', error);
         return null;
@@ -42,11 +41,14 @@ export async function getUSDCBalance(walletAddress: string): Promise<number> {
             return 0;
         }
 
-        const accountInfo = await getAccount(connection, tokenAccount);
-        // USDC has 6 decimals
-        const balance = Number(accountInfo.amount) / 1_000_000;
-
-        return balance;
+        const parsed = await connection.getParsedAccountInfo(tokenAccount);
+        const value = parsed.value;
+        if (!value || !('parsed' in value.data)) {
+            return 0;
+        }
+        const data = value.data as { parsed: { info?: { tokenAmount?: { uiAmount?: number | null } } } };
+        const ui = data.parsed?.info?.tokenAmount?.uiAmount;
+        return typeof ui === 'number' ? ui : 0;
     } catch (error) {
         console.error('Error fetching USDC balance:', error);
         return 0;
@@ -59,17 +61,21 @@ export async function getUSDCBalance(walletAddress: string): Promise<number> {
 export async function createUSDCTokenAccount(
     walletPubkey: PublicKey
 ): Promise<Transaction> {
-    const associatedTokenAddress = await getAssociatedTokenAddress(
+    const associatedTokenAddress = await Token.getAssociatedTokenAddress(
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+        TOKEN_PROGRAM_ID,
         USDC_MINT,
         walletPubkey
     );
 
     const transaction = new Transaction().add(
-        createAssociatedTokenAccountInstruction(
-            walletPubkey, // payer
-            associatedTokenAddress, // associated token account
-            walletPubkey, // owner
-            USDC_MINT // mint
+        Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            USDC_MINT,
+            associatedTokenAddress,
+            walletPubkey,
+            walletPubkey
         )
     );
 
