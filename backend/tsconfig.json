@@ -14,15 +14,17 @@
         "resolveJsonModule": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
-        "declaration": true,
-        "declarationMap": true,
-        "sourceMap": true
+        /* Optimization: These are great for libraries, but often unnecessary for deployed APIs */
+        "declaration": false,
+        "declarationMap": false,
+        "sourceMap": false
     },
     "include": [
         "src/**/*"
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "**/*.test.ts" 
     ]
 }
