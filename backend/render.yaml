@@ -1,12 +1,14 @@
+# Use from repo root as render.yaml, or keep in sync with ../render.yaml.
 services:
   - type: web
     name: salonevest-backend
-    env: node
-    buildCommand: cd backend && npm install && npm run build
-    startCommand: cd backend && npm start
+    runtime: docker
     plan: free
     branch: master
     rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production

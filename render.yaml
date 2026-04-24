@@ -1,12 +1,16 @@
+# Backend image is built only from backend/Dockerfile (Node + npm live there).
+# Do not set buildCommand/startCommand for runtime: docker — that causes
+# "npm: not found" if the platform runs them outside the Node base image.
 services:
   - type: web
     name: salonevest-backend
-    env: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    runtime: docker
     plan: free
     branch: master
     rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
