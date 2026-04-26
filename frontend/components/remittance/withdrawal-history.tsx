@@ -15,6 +15,8 @@ interface Withdrawal {
   fee: number
   netAmount: number
   paymentMethod: string
+  payoutCurrency?: string
+  payoutSle?: number
   status: string
   createdAt: string
   processedDate?: string
@@ -74,6 +76,8 @@ export function WithdrawalHistory({ userId }: WithdrawalHistoryProps) {
         return '📱 Orange Money'
       case 'afromo_money':
         return '📱 Afromo Money'
+      case 'peeap':
+        return '🇸🇱 Peeap (SLE / mobile money)'
       default:
         return method
     }
@@ -110,9 +114,18 @@ export function WithdrawalHistory({ userId }: WithdrawalHistoryProps) {
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="font-semibold text-lg">${withdrawal.amount.toFixed(2)}</p>
+                    <p className="font-semibold text-lg">
+                      {withdrawal.paymentMethod === 'peeap' && withdrawal.payoutSle != null
+                        ? `Le ${withdrawal.payoutSle.toLocaleString()} SLE`
+                        : `$${withdrawal.amount.toFixed(2)}`}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {getPaymentMethodLabel(withdrawal.paymentMethod)}
+                      {withdrawal.paymentMethod === 'peeap' && (
+                        <span className="block text-xs mt-0.5">
+                          Booked ≈ ${withdrawal.amount.toFixed(2)} USDC
+                        </span>
+                      )}
                     </p>
                   </div>
                   <Badge className={getStatusColor(withdrawal.status)}>

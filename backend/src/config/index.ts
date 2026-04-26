@@ -15,6 +15,9 @@ const adminWallets = (process.env.ADMIN_WALLETS || '')
     .map((s) => s.trim())
     .filter(Boolean);
 
+/** Server-only; never expose to the browser. Used for Peeap webhooks / server API later. */
+export const peeapSecretKey = process.env.PEEAP_SECRET_KEY?.trim() || '';
+
 export const config = {
     solana: {
         rpcUrl: process.env.SOLANA_RPC_URL || SOLANA_RPC_URL,
@@ -32,6 +35,10 @@ export const config = {
     jwt: {
         secret: jwtSecret || 'dev-only-change-in-production',
         expiresIn: '7d',
+    },
+    peeap: {
+        /** Webhook signature / server-side Checkout create (do not log in production). */
+        secretKey: peeapSecretKey,
     },
 };
 

@@ -1,12 +1,9 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { OfflineIndicator } from "@/components/offline-indicator"
+import { AppProviders } from "./providers"
 import "./globals.css"
-
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "SaloneVest - Diaspora Investment Platform",
@@ -65,7 +62,7 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={`font-sans antialiased`}>
-        {children}
+        <AppProviders>{children}</AppProviders>
         <OfflineIndicator />
         <Analytics />
       </body>

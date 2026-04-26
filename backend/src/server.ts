@@ -10,6 +10,7 @@ import investmentRoutes from './routes/investment.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import balanceRoutes from './routes/balance.routes';
 import adminRoutes from './routes/admin.routes';
+import withdrawalRoutes from './routes/withdrawal.routes';
 
 import { createServer } from 'http';
 import { initWebSocket } from './utils/websocket';
@@ -22,11 +23,18 @@ dotenv.config();
 const app: Application = express();
 const httpServer = createServer(app);
 const PORT = parseInt(process.env.PORT || '5000', 10);
+/** Comma-separated origins (CORS + Socket.io), e.g. http://localhost,http://localhost:3000 */
+const parseCorsOrigins = (): string | string[] => {
+    const raw = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const list = raw.split(',').map((s) => s.trim()).filter(Boolean);
+    return list.length <= 1 ? list[0] ?? 'http://localhost:3000' : list;
+};
+const corsOrigins = parseCorsOrigins();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 // Middleware
 app.use(cors({
-    origin: FRONTEND_URL,
+    origin: corsOrigins,
     credentials: true,
 }));
 app.use(express.json());
@@ -54,6 +62,7 @@ app.use('/api/investments', investmentRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/balance', balanceRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/withdrawals', withdrawalRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {
@@ -75,7 +84,7 @@ const startServer = async () => {
         await connectDB();
 
         // Initialize WebSocket
-        initWebSocket(httpServer, FRONTEND_URL);
+        initWebSocket(httpServer, corsOrigins);
 
         // Start listening (attach 'error' before listen so EADDRINUSE is handled)
         httpServer
@@ -94,7 +103,7 @@ const startServer = async () => {
             .listen(PORT, '0.0.0.0', () => {
                 console.log(`\n🚀 SaloneVest Backend Server`);
                 console.log(`📡 Server running on http://0.0.0.0:${PORT}`);
-                console.log(`🌐 Frontend URL: ${FRONTEND_URL}`);
+                console.log(`🌐 CORS (FRONTEND_URL): ${FRONTEND_URL}`);
                 console.log(`📊 Health check: http://localhost:${PORT}/health`);
                 console.log(`⚡ WebSocket initialized`);
                 console.log(`\n✅ Ready to accept requests\n`);

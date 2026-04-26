@@ -97,7 +97,10 @@ export default function RemitPage() {
                             <div className="grid lg:grid-cols-3 gap-6">
                                 {/* Withdrawal Form */}
                                 <div className="lg:col-span-2">
-                                    <WithdrawalForm balance={balance} userId={user.id} />
+                                    <WithdrawalForm
+                                        balance={balance ?? 0}
+                                        walletAddress={user.publicKey}
+                                    />
                                 </div>
 
                                 {/* Info Sidebar */}
@@ -150,7 +153,7 @@ export default function RemitPage() {
                             </div>
 
                             {/* Withdrawal History */}
-                            <WithdrawalHistory userId={user.id} />
+                            <WithdrawalHistory userId={String(user.id ?? user._id ?? '')} />
                         </div>
                     </TabsContent>
                 </Tabs>

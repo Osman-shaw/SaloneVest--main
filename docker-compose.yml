@@ -40,7 +40,8 @@ services:
       PROGRAM_ID: ${PROGRAM_ID:-}
       SECRET_KEY: ${SECRET_KEY:-}
       JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGIN: http://localhost:3000
+      # Browsers + nginx: allow both gateway and direct-to-Next.js during local dev
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost,http://localhost:3000}
     ports:
       - "5000:5000"
     networks:
@@ -57,13 +58,17 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Public origin the browser uses (via nginx on :80). Do not use http://backend:5000 here.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost}
+        NEXT_PUBLIC_SOLANA_RPC_URL: ${SOLANA_RPC_URL:-https://api.devnet.solana.com}
+        NEXT_PUBLIC_SOLANA_NETWORK: ${SOLANA_NETWORK:-devnet}
     container_name: salonevest-app
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: http://backend:5000
-      NEXT_PUBLIC_SOLANA_RPC_URL: ${SOLANA_RPC_URL:-https://api.devnet.solana.com}
-      NEXT_PUBLIC_NETWORK: ${NETWORK:-devnet}
+      # Runtime only; client bundle is built with args above
+      NODE_ENV: ${NODE_ENV:-production}
     ports:
       - "3000:3000"
     networks:
@@ -84,10 +89,8 @@ services:
       - backend
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
     networks:
       - salonevest-network
     restart: unless-stopped

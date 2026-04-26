@@ -1,44 +1,36 @@
-# Build stage
-FROM node:20-alpine as builder
-
+# Build from frontend/ (standalone Next.js + pnpm lockfile)
+FROM node:20-alpine AS base
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN corepack enable pnpm
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+FROM base AS deps
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# Install dependencies
-RUN npm ci
-
-# Copy source code
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# Must be present at build time (embedded in the client bundle)
+ARG NEXT_PUBLIC_API_URL=http://localhost:5000
+ARG NEXT_PUBLIC_SOLANA_RPC_URL=https://api.devnet.solana.com
+ARG NEXT_PUBLIC_SOLANA_NETWORK=devnet
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_SOLANA_RPC_URL=$NEXT_PUBLIC_SOLANA_RPC_URL
+ENV NEXT_PUBLIC_SOLANA_NETWORK=$NEXT_PUBLIC_SOLANA_NETWORK
+RUN pnpm run build
 
-# Build Next.js application
-RUN npm run build
-
-# Runtime stage
-FROM node:20-alpine
-
-WORKDIR /app
-
-# Install curl for health checks
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+RUN addgroup -g 1001 -S nodejs && adduser -S -u 1001 -G nodejs nextjs
 RUN apk add --no-cache curl
-
-# Copy package files
-COPY package*.json ./
-
-# Install production dependencies only
-RUN npm ci --only=production
-
-# Copy built application from builder
-COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-
-# Expose port
+USER nextjs
 EXPOSE 3000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:3000 || exit 1
-
-# Start application
-CMD ["npm", "start"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD sh -c 'curl -fsS "http://127.0.0.1:3000/" >/dev/null || exit 1'
+CMD ["node", "server.js"]

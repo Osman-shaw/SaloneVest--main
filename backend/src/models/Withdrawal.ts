@@ -2,8 +2,13 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IWithdrawal extends Document {
     user: mongoose.Types.ObjectId;
+    /** Booked in USDC for portfolio checks and processing (all methods). */
     amount: number;
-    paymentMethod: 'bank_transfer' | 'orange_money' | 'afromo_money';
+    paymentMethod: 'bank_transfer' | 'orange_money' | 'afromo_money' | 'peeap';
+    /** USDC for bank/other; SLE when paying out via Peeap (amount field still USDC equivalent). */
+    payoutCurrency: 'USDC' | 'SLE';
+    /** Peeap / Sierra Leone: New Leone amount shown to user (optional). */
+    payoutSle?: number;
     status: 'pending' | 'approved' | 'processed' | 'failed' | 'cancelled';
     bankDetails?: {
         bankName: string;
@@ -37,13 +42,19 @@ const WithdrawalSchema: Schema = new Schema({
     amount: { 
         type: Number, 
         required: true,
-        min: 10 // Minimum withdrawal amount
+        min: 0.01
     },
     paymentMethod: {
         type: String,
-        enum: ['bank_transfer', 'orange_money', 'afromo_money'],
+        enum: ['bank_transfer', 'orange_money', 'afromo_money', 'peeap'],
         required: true
     },
+    payoutCurrency: {
+        type: String,
+        enum: ['USDC', 'SLE'],
+        default: 'USDC',
+    },
+    payoutSle: { type: Number, required: false },
     status: {
         type: String,
         enum: ['pending', 'approved', 'processed', 'failed', 'cancelled'],

@@ -7,20 +7,27 @@ import { Hero } from "@/components/hero"
 import { Features } from "@/components/features"
 import { HowItWorks } from "@/components/how-it-works"
 import { Footer } from "@/components/footer"
+import { waitForSolanaWallet, syncStoredWalletFromProvider } from "@/lib/solana-wallet"
 
 export default function Home() {
   const [isConnected, setIsConnected] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    // Check if user is already connected
+    let cancelled = false
     const checkWalletConnection = async () => {
-      if (typeof window !== "undefined" && window.phantom?.solana?.isConnected) {
+      const ready = await waitForSolanaWallet(12, 100)
+      if (cancelled) return
+      if (ready) {
+        syncStoredWalletFromProvider()
         setIsConnected(true)
-        router.push("/dashboard")
+        router.replace("/dashboard")
       }
     }
-    checkWalletConnection()
+    void checkWalletConnection()
+    return () => {
+      cancelled = true
+    }
   }, [router])
 
   return (

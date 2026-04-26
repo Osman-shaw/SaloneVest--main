@@ -14,8 +14,9 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor
 apiClient.interceptors.request.use(
     (config) => {
-        // You can add auth tokens here if needed
-        console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        if (process.env.NODE_ENV === "development") {
+            console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        }
         return config;
     },
     (error) => {
@@ -31,17 +32,47 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         if (error.response) {
-            // Server responded with error
-            console.error('API Error:', error.response.status, error.response.data);
+            const n = Number(error.response.status);
+            // Never treat 4xx as a "server" error in the dev overlay; callers handle them
+            if (!Number.isNaN(n) && n >= 500) {
+                console.error("API Error:", n, error.response.data);
+            }
         } else if (error.request) {
-            // Request made but no response
-            console.error('Network Error: No response received');
+            console.error("Network Error: No response received");
         } else {
-            // Error in request setup
-            console.error('Request Error:', error.message);
+            console.error("Request Error:", error.message);
         }
         return Promise.reject(error);
     }
 );
 
-export default apiClient;
+/** Typed helpers for the Express API (default `NEXT_PUBLIC_API_URL` / port 5000). */
+export const api = {
+    auth: {
+        connect: (publicKey: string, signature: string, message: string) =>
+            apiClient.post("/api/auth/connect", { publicKey, signature, message }),
+    },
+    user: {
+        /** 404 = user not in DB yet (first visit); does not use the global error log path */
+        get: (walletAddress: string, config?: AxiosRequestConfig) =>
+            apiClient.get(`/api/user/${encodeURIComponent(walletAddress)}`, {
+                ...config,
+                validateStatus: (s) => s === 404 || (s >= 200 && s < 300),
+            }),
+        update: (
+            walletAddress: string,
+            body: { profile?: unknown; settings?: unknown }
+        ) =>
+            apiClient.put(`/api/user/${encodeURIComponent(walletAddress)}`, body),
+    },
+    portfolio: {
+        get: (walletAddress: string) =>
+            apiClient.get(`/api/portfolio/${encodeURIComponent(walletAddress)}`),
+        getPerformance: (walletAddress: string) =>
+            apiClient.get(
+                `/api/portfolio/${encodeURIComponent(walletAddress)}/performance`
+            ),
+    },
+} as const
+
+export default apiClient

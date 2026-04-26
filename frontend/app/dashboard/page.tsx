@@ -4,6 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { InvestmentDashboard } from "@/components/investment-dashboard"
+import {
+  isSolanaWalletReady,
+  waitForSolanaWallet,
+  clearStoredWalletSession,
+  syncStoredWalletFromProvider,
+} from "@/lib/solana-wallet"
 
 export default function DashboardPage() {
   const [isConnected, setIsConnected] = useState(false)
@@ -11,14 +17,43 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const walletConnected = localStorage.getItem("walletConnected") === "true"
-    if (!walletConnected) {
-      router.push("/")
-    } else {
+    let cancelled = false
+    const run = async () => {
+      const ready = await waitForSolanaWallet()
+      if (cancelled) return
+      if (!ready) {
+        clearStoredWalletSession()
+        router.replace("/")
+        return
+      }
+      syncStoredWalletFromProvider()
       setIsConnected(true)
       setIsLoading(false)
     }
+    void run()
+    return () => {
+      cancelled = true
+    }
   }, [router])
+
+  useEffect(() => {
+    if (isLoading) return
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return
+      if (!isSolanaWalletReady()) {
+        clearStoredWalletSession()
+        router.replace("/")
+      } else {
+        syncStoredWalletFromProvider()
+      }
+    }
+    window.addEventListener("focus", onVisible)
+    document.addEventListener("visibilitychange", onVisible)
+    return () => {
+      window.removeEventListener("focus", onVisible)
+      document.removeEventListener("visibilitychange", onVisible)
+    }
+  }, [router, isLoading])
 
   if (isLoading) {
     return (

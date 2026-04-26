@@ -3,7 +3,7 @@ import { Server, Socket } from 'socket.io';
 
 let io: Server;
 
-export const initWebSocket = (httpServer: HttpServer, corsOrigin: string) => {
+export const initWebSocket = (httpServer: HttpServer, corsOrigin: string | string[]) => {
     io = new Server(httpServer, {
         cors: {
             origin: corsOrigin,

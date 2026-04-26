@@ -7,6 +7,9 @@ import Portfolio from '../models/Portfolio';
  * POST /api/withdrawals
  * Create a new withdrawal request
  */
+const MOBILE_FEE = 0.01;
+const BANK_FEE = 0.02;
+
 export const createWithdrawal = async (req: Request, res: Response): Promise<void> => {
     try {
         const { 
@@ -14,39 +17,70 @@ export const createWithdrawal = async (req: Request, res: Response): Promise<voi
             amount, 
             paymentMethod, 
             bankDetails, 
-            mobileMoneyDetails 
+            mobileMoneyDetails,
+            /** New Leone (SLE) for Peeap — books USDC = sleAmount / SLE_USDC_RATE */
+            sleAmount,
         } = req.body;
 
         // Validate inputs
-        if (!walletAddress || !amount || !paymentMethod) {
+        if (!walletAddress || !paymentMethod) {
             res.status(400).json({ error: 'Missing required fields' });
             return;
         }
 
-        // Validate payment method
-        const validMethods = ['bank_transfer', 'orange_money', 'afromo_money'];
+        const validMethods = ['bank_transfer', 'orange_money', 'afromo_money', 'peeap'];
         if (!validMethods.includes(paymentMethod)) {
             res.status(400).json({ error: 'Invalid payment method' });
             return;
         }
 
-        // Find user
         const user = await User.findOne({ walletAddress });
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
         }
 
-        // Check user balance by summing portfolio investments
         const portfolioInvestments = await Portfolio.find({ user: user._id });
         const totalBalance = portfolioInvestments.reduce((sum, inv) => sum + inv.currentValue, 0);
-        
-        if (totalBalance < amount) {
+
+        let bookAmount: number;
+        let payoutSle: number | undefined;
+        let payoutCurrency: 'USDC' | 'SLE' = 'USDC';
+
+        if (paymentMethod === 'peeap') {
+            const sle = Number(sleAmount !== undefined ? sleAmount : amount);
+            if (!Number.isFinite(sle) || sle < 5) {
+                res.status(400).json({
+                    error: 'Peeap (Sierra Leone): use SLE (New Leone). Minimum 5 SLE.',
+                });
+                return;
+            }
+            if (sle > 5_000_000) {
+                res.status(400).json({ error: 'Payout amount is too high' });
+                return;
+            }
+            const rate = parseFloat(process.env.SLE_USDC_RATE || '25');
+            if (!Number.isFinite(rate) || rate <= 0) {
+                res.status(500).json({ error: 'SLE_USDC_RATE is not configured' });
+                return;
+            }
+            bookAmount = Math.round((sle / rate) * 1e6) / 1e6;
+            payoutSle = sle;
+            payoutCurrency = 'SLE';
+        } else {
+            const usdc = Number(amount);
+            if (!Number.isFinite(usdc) || usdc < 10) {
+                res.status(400).json({ error: 'Minimum withdrawal is $10 USDC' });
+                return;
+            }
+            bookAmount = usdc;
+        }
+
+        if (totalBalance < bookAmount) {
             res.status(400).json({ error: 'Insufficient balance' });
             return;
         }
 
-        // Validate payment method details
         if (paymentMethod === 'bank_transfer' && !bankDetails) {
             res.status(400).json({ error: 'Bank details required for bank transfer' });
             return;
@@ -57,21 +91,36 @@ export const createWithdrawal = async (req: Request, res: Response): Promise<voi
             return;
         }
 
-        // Calculate withdrawal fee (2% standard, 1% for mobile money to encourage adoption)
-        const feePercentage = (paymentMethod === 'orange_money' || paymentMethod === 'afromo_money') ? 0.01 : 0.02;
-        const fee = Math.round(amount * feePercentage * 100) / 100; // Round to 2 decimals
-        const netAmount = amount - fee;
+        if (paymentMethod === 'peeap' && !mobileMoneyDetails?.phoneNumber) {
+            res.status(400).json({ error: 'Phone number is required for Peeap mobile money' });
+            return;
+        }
 
-        // Create withdrawal request
+        const feePercentage =
+            paymentMethod === 'bank_transfer' ? BANK_FEE : MOBILE_FEE;
+        const fee = Math.round(bookAmount * feePercentage * 1e6) / 1e6;
+        const netAmount = bookAmount - fee;
+
         const withdrawal = new Withdrawal({
             user: user._id,
-            amount,
+            amount: bookAmount,
             paymentMethod,
+            payoutCurrency,
+            payoutSle: payoutSle !== undefined ? payoutSle : undefined,
             bankDetails: paymentMethod === 'bank_transfer' ? bankDetails : undefined,
-            mobileMoneyDetails: (paymentMethod === 'orange_money' || paymentMethod === 'afromo_money') ? mobileMoneyDetails : undefined,
+            mobileMoneyDetails:
+                paymentMethod === 'orange_money' || paymentMethod === 'afromo_money'
+                    ? mobileMoneyDetails
+                    : paymentMethod === 'peeap'
+                      ? {
+                            phoneNumber: mobileMoneyDetails.phoneNumber,
+                            accountName: mobileMoneyDetails.accountName || '',
+                            providerName: 'Peeap (SLE)',
+                        }
+                      : undefined,
             fee,
             netAmount,
-            status: 'pending'
+            status: 'pending',
         });
 
         await withdrawal.save();
@@ -85,9 +134,11 @@ export const createWithdrawal = async (req: Request, res: Response): Promise<voi
                 fee: withdrawal.fee,
                 netAmount: withdrawal.netAmount,
                 paymentMethod: withdrawal.paymentMethod,
+                payoutCurrency: withdrawal.payoutCurrency,
+                payoutSle: withdrawal.payoutSle,
                 status: withdrawal.status,
-                createdAt: withdrawal.createdAt
-            }
+                createdAt: withdrawal.createdAt,
+            },
         });
     } catch (error) {
         console.error('Error creating withdrawal:', error);
