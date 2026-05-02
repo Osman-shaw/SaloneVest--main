@@ -8,7 +8,9 @@
         "build": "tsc",
         "start": "node dist/server.js",
         "test": "jest",
-        "seed": "ts-node-dev src/utils/seed.ts"
+        "seed": "ts-node-dev src/utils/seed.ts",
+        "deploy:railway": "npx -y @railway/cli@latest up",
+        "railway": "npx -y @railway/cli@latest"
     },
     "keywords": [
         "solana",
